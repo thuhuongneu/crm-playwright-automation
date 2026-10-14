@@ -6,8 +6,8 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    # GitHub cron luôn tính theo UTC: 09:35 UTC = 16:35 giờ Việt Nam (UTC+7), chạy mỗi ngày
-    - cron: '35 9 * * *'
+    # GitHub cron luôn tính theo UTC: 09:50 UTC = 16:50 giờ Việt Nam (UTC+7), chạy mỗi ngày
+    - cron: '50 9 * * *'
 
 env:
   NODE_VERSION: '22'
