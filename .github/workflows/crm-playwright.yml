@@ -6,8 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    # TẠM để thử lịch: 10:40 UTC = 17:40 giờ Việt Nam. Thử xong đổi lại '50 9 * * *' (16:50 giờ Việt Nam)
-    - cron: '40 10 * * *'
+    # GitHub cron luôn tính theo UTC: 01:03 UTC = 08:03 giờ Việt Nam (UTC+7), mỗi ngày.
+    # Lệch 3 phút khỏi 08:00 vì đầu giờ tròn là lúc hàng đợi lịch của GitHub nghẽn nhất (hay trễ / bị bỏ lượt)
+    - cron: '3 1 * * *'
 
 env:
   NODE_VERSION: '22'
@@ -27,6 +28,11 @@ jobs:
     timeout-minutes: 30
     # PR từ fork không đọc được secrets -> suite sẽ crash vì thiếu biến môi trường
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    outputs:
+      passed: ${{ steps.summary.outputs.passed }}
+      failed: ${{ steps.summary.outputs.failed }}
+      broken: ${{ steps.summary.outputs.broken }}
+      skipped: ${{ steps.summary.outputs.skipped }}
     concurrency:
       group: ui-crm-${{ github.ref }}
       cancel-in-progress: true
@@ -54,6 +60,11 @@ jobs:
 
       - name: Chạy test UI
         run: npx playwright test --grep-invert "$EXCLUDE_KNOWN_BUGS"
+
+      - name: Tóm tắt số test
+        id: summary
+        if: always()
+        run: node .github/scripts/summarize-allure.js reports/allure-results >> "$GITHUB_OUTPUT"
 
       # Allure 2 (CLI allure-commandline trong project, cần Java — runner ubuntu-latest có sẵn). Lỗi sinh report không được che kết quả test
       - name: Sinh report Allure 2
@@ -85,6 +96,11 @@ jobs:
     timeout-minutes: 20
     # Suite này ĐĂNG KÝ rồi XOÁ tài khoản trên server demo dùng chung -> không chạy ở PR, và không cho hai lượt chạy chồng nhau
     if: github.event_name != 'pull_request'
+    outputs:
+      passed: ${{ steps.summary.outputs.passed }}
+      failed: ${{ steps.summary.outputs.failed }}
+      broken: ${{ steps.summary.outputs.broken }}
+      skipped: ${{ steps.summary.outputs.skipped }}
     concurrency:
       group: api-book
       cancel-in-progress: false
@@ -104,6 +120,11 @@ jobs:
 
       - name: Chạy test API
         run: npx playwright test -c playwright.api.config.ts --grep-invert "$EXCLUDE_KNOWN_BUGS"
+
+      - name: Tóm tắt số test
+        id: summary
+        if: always()
+        run: node .github/scripts/summarize-allure.js reports/api/allure-results >> "$GITHUB_OUTPUT"
 
       - name: Sinh report Allure 2
         if: always()
@@ -184,23 +205,21 @@ jobs:
     timeout-minutes: 5
     env:
       GCHAT_WEBHOOK_NOTE: ${{ secrets.GCHAT_WEBHOOK_NOTE }}
+      GITHUB_TOKEN: ${{ github.token }}
       UI_RESULT: ${{ needs.ui-crm.result }}
+      UI_PASSED: ${{ needs.ui-crm.outputs.passed }}
+      UI_FAILED: ${{ needs.ui-crm.outputs.failed }}
+      UI_BROKEN: ${{ needs.ui-crm.outputs.broken }}
+      UI_SKIPPED: ${{ needs.ui-crm.outputs.skipped }}
       API_RESULT: ${{ needs.api-book.result }}
+      API_PASSED: ${{ needs.api-book.outputs.passed }}
+      API_FAILED: ${{ needs.api-book.outputs.failed }}
+      API_BROKEN: ${{ needs.api-book.outputs.broken }}
+      API_SKIPPED: ${{ needs.api-book.outputs.skipped }}
       PAGES_RESULT: ${{ needs.publish-report.result }}
     steps:
-      - name: Gửi tin
-        run: |
-          icon() { [ "$1" = "success" ] && echo "✅" || echo "❌"; }
-          PAGES="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}"
-          RUN="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          NOW=$(TZ=Asia/Ho_Chi_Minh date '+%H:%M %d-%m-%Y')
-          MSG="*CRM Playwright — kết quả CI* (${NOW})
-          UI CRM: $(icon "$UI_RESULT") ${UI_RESULT}
-          API Book: $(icon "$API_RESULT") ${API_RESULT}
-          Sự kiện: ${GITHUB_EVENT_NAME} · commit ${GITHUB_SHA::7}
-          Report Allure 2: UI ${PAGES}/ui/ · API ${PAGES}/api/
-          Lượt chạy: ${RUN}"
-          if [ "$PAGES_RESULT" != "success" ]; then MSG="${MSG}
-          ⚠️ Chưa publish được report lên Pages (${PAGES_RESULT}) — xem artifact allure-report-* trong lượt chạy."; fi
-          jq -n --arg text "$MSG" '{text: $text}' \
-            | curl -sS --fail-with-body -X POST -H 'Content-Type: application/json; charset=UTF-8' -d @- "$GCHAT_WEBHOOK_NOTE" > /dev/null
+      - uses: actions/checkout@v4
+
+      # Thẻ Google Chat dựng trong .github/scripts/notify-chat.js (chạy local được: DRY_RUN=1 node .github/scripts/notify-chat.js)
+      - name: Gửi thẻ kết quả
+        run: node .github/scripts/notify-chat.js
