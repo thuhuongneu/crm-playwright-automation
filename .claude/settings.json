@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read project files",
+      "Read .env files",
+      "Run npm and npx commands",
+      "Run playwright tests",
+      "Run maven commands",
+      "Execute shell commands for testing"
+    ],
+    "deny": [    
+    ]
+  }
+}

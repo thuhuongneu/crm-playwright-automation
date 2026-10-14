@@ -1,0 +1,95 @@
+name: CRM Playwright
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '22'
+  # Runner GitHub chỉ có 2 vCPU; server demo hay treo khi chạy nhiều trình duyệt song song
+  WORKERS: '2'
+  HEADLESS: 'true'
+  # TC cố tình FAIL vì app đang có bug — loại khỏi lượt CI, KHÔNG hạ assertion trong code.
+  # @knownbug / @pendingamb: theo tag. Hai TC còn lại chưa gắn tag nên loại theo tên:
+  #   CRM_LOGIN_TC_004 (bấm logo, chờ PO) · BK_AUTH_TC_068-d (name 10.000 ký tự).
+  # Bỏ khỏi danh sách này khi bug được sửa.
+  EXCLUDE_KNOWN_BUGS: '@knownbug|@pendingamb|Bấm logo trên trang đăng nhập|không gây lỗi máy chủ \(biến thể d'
+
+jobs:
+  ui-crm:
+    name: UI CRM (Perfex)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # PR từ fork không đọc được secrets -> suite sẽ crash vì thiếu biến môi trường
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    concurrency:
+      group: ui-crm-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      PM_EMAIL: ${{ secrets.PM_EMAIL }}
+      PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Cài Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Chạy test UI
+        run: npx playwright test --grep-invert "$EXCLUDE_KNOWN_BUGS"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-ui
+          path: reports/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  api-book:
+    name: API Book
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Suite này ĐĂNG KÝ rồi XOÁ tài khoản trên server demo dùng chung -> không chạy ở PR, và không cho hai lượt chạy chồng nhau
+    if: github.event_name != 'pull_request'
+    concurrency:
+      group: api-book
+      cancel-in-progress: false
+    env:
+      BOOK_API_BASE_URL: ${{ secrets.BOOK_API_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Chạy test API
+        run: npx playwright test -c playwright.api.config.ts --grep-invert "$EXCLUDE_KNOWN_BUGS"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-api
+          path: reports/
+          retention-days: 14
+          if-no-files-found: ignore

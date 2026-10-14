@@ -1,0 +1,30 @@
+{
+  "name": "crm-playwright-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automation framework E2E cho Perfex CRM (crm.anhtester.com) - Playwright + TypeScript",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "cross-env HEADLESS=false playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "typecheck": "tsc --noEmit",
+    "report": "allure generate reports/allure-results -o reports/allure-report --clean && allure open reports/allure-report",
+    "report:single": "allure generate reports/allure-results -o reports/allure-report-single --clean --single-file",
+    "clean": "node -e \"require('fs').rmSync('reports',{recursive:true,force:true})\"",
+    "test:api": "playwright test -c playwright.api.config.ts",
+    "test:api:smoke": "playwright test -c playwright.api.config.ts --grep @smoke",
+    "report:api": "allure generate reports/api/allure-results -o reports/api/allure-report --clean && allure open reports/api/allure-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.10.0",
+    "ajv": "^8.20.0",
+    "allure-commandline": "^2.46.1",
+    "allure-js-commons": "^3.12.1",
+    "allure-playwright": "^3.10.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.7.0",
+    "winston": "^3.17.0"
+  }
+}

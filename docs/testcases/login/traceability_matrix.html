@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Báo cáo RTM — Login CRM</title>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--ink:#1c2233;--mute:#667085;--line:#e4e7ee;--brand:#3b5bdb;--full:#2f9e63;--part:#f08c00;--man:#e8590c;--none:#e03131;--out:#98a2b3;--soft:#eef2ff}
+@media (prefers-color-scheme:dark){:root{--bg:#10131c;--card:#181c28;--ink:#e8ebf4;--mute:#98a2b8;--line:#2a3042;--soft:#1e2540;--brand:#7c93ff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px 48px}
+header{background:linear-gradient(135deg,#2b3f9e,#3b5bdb 55%,#5f7cf0);color:#fff;padding:40px 0 64px}
+header .wrap{padding-bottom:0}
+header h1{margin:0 0 6px;font-size:28px;letter-spacing:-.3px}
+header p{margin:0;opacity:.85}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.meta span{background:rgba(255,255,255,.16);border-radius:99px;padding:4px 12px;font-size:13px}
+main{margin-top:-40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+h2{margin:0 0 12px;font-size:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+.kpi small{color:var(--mute);display:block}
+.kpi b{font-size:32px;letter-spacing:-1px;display:block;margin:2px 0}
+.kpi em{font-style:normal;color:var(--mute);font-size:13px}
+.kpi.ok b{color:var(--full)}.kpi.warn b{color:var(--part)}
+.grid2{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:center}
+.legend div{display:flex;align-items:center;gap:10px;margin:6px 0}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.callout{border-left:4px solid var(--part);background:color-mix(in srgb,var(--part) 10%,var(--card));padding:14px 16px;border-radius:8px}
+.callout ul{margin:8px 0 0;padding-left:20px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;color:var(--mute);font-weight:600;border-bottom:2px solid var(--line);padding:8px 10px;position:sticky;top:0;background:var(--card)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:var(--soft)}
+.nw{white-space:nowrap}
+.tcs{color:var(--mute);font-size:12.5px}
+.files{margin-top:3px}
+code{background:var(--soft);padding:1px 6px;border-radius:5px;font-size:11.5px}
+.pill{padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;color:#fff}
+.pill.full{background:var(--full)}.pill.part{background:var(--part)}.pill.man{background:var(--man)}.pill.none{background:var(--none)}.pill.out{background:var(--out)}
+.bar{display:inline-block;width:46px;height:6px;background:var(--line);border-radius:4px;vertical-align:middle;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--full)}
+.pr{font-weight:600;font-size:12px}.pr.Critical{color:var(--none)}.pr.High{color:var(--man)}.pr.Medium{color:var(--part)}.pr.Low{color:var(--mute)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.filters button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:4px 14px;cursor:pointer;font:inherit;font-size:13px}
+.filters button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.scroll{overflow-x:auto}
+ul.plain{margin:0;padding-left:20px}
+footer{color:var(--mute);font-size:12.5px;text-align:center;margin-top:24px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}header h1{font-size:22px}}
+@media print{body{background:#fff}header{background:#3b5bdb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.filters{display:none}.card,.kpi{box-shadow:none;break-inside:avoid}th{position:static}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>Ma trận truy vết (RTM) — Module Đăng nhập</h1>
+<p>Perfex CRM · Anh Tester Demo · Nền tảng Web</p>
+<div class="meta"><span>Ngày lập: 14-10-2026</span><span>REQ ↔ Test case ↔ Automation</span><span>51 test case · 44 requirement</span></div>
+</div></header>
+<main class="wrap">
+
+<div class="kpis">
+<div class="kpi ok"><small>Requirement Coverage</small><b>100%</b><em>40/40 REQ trong phạm vi có ≥1 TC</em></div>
+<div class="kpi ok"><small>Platform Coverage (Web)</small><b>100%</b><em>40/40 cặp REQ × Web</em></div>
+<div class="kpi warn"><small>Automation Coverage</small><b>35.3%</b><em>18/51 TC có script · 37.5% nếu bỏ 3 TC không automate</em></div>
+<div class="kpi"><small>Orphan test</small><b>1</b><em>CRM_DASH_TC_001 — module DASH chưa khảo sát</em></div>
+</div>
+
+<div class="card callout">
+<b>⬛ Phạm vi của con số này</b>
+<ul>
+<li>RTM chỉ phủ module <b>LOGIN</b>; 100% coverage <b>không</b> phản ánh toàn hệ thống.</li>
+<li><b>20/23 module</b> chưa khảo sát nên chưa có REQ nào (CONT, LEAD, TASK, EST, PROP, INV, PAY, CN, SUB, CTR, EXP, ITEM, TICK, ESTREQ, KB, REP, DASH, TODO, REM, PROF).</li>
+<li>PRJ (104 REQ) chưa có test case · CUST (84 REQ · 129 TC) chưa có RTM riêng.</li>
+<li>4 REQ ngoài phạm vi theo quyết định PO 18-08-2026 (27, 34, 35, 40) không tính vào mẫu số.</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Mức độ automation trên 40 REQ trong phạm vi</h2>
+<div class="grid2">
+<svg viewBox="0 0 140 140" width="220" height="220" role="img" aria-label="Phân bố trạng thái automation"><circle r="52" cx="70" cy="70" fill="none" stroke="var(--line)" stroke-width="18"/><circle r="52" cx="70" cy="70" fill="none" stroke="var(--full)" stroke-width="18" stroke-dasharray="114.35 326.73" stroke-dashoffset="0.00" transform="rotate(-90 70 70)"/><circle r="52" cx="70" cy="70" fill="none" stroke="var(--part)" stroke-width="18" stroke-dasharray="49.01 326.73" stroke-dashoffset="-114.35" transform="rotate(-90 70 70)"/><circle r="52" cx="70" cy="70" fill="none" stroke="var(--man)" stroke-width="18" stroke-dasharray="163.36 326.73" stroke-dashoffset="-163.36" transform="rotate(-90 70 70)"/><text x="70" y="68" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)">14/40</text><text x="70" y="86" text-anchor="middle" font-size="9" fill="var(--mute)">REQ đủ script</text></svg>
+<div class="legend">
+<div><span class="dot" style="background:var(--full)"></span><b>14</b> REQ Full — mọi TC đã có script</div>
+<div><span class="dot" style="background:var(--part)"></span><b>6</b> REQ một phần — còn TC chưa có script</div>
+<div><span class="dot" style="background:var(--man)"></span><b>20</b> REQ chỉ thủ công — có TC, chưa có script</div>
+<div><span class="dot" style="background:var(--none)"></span><b>0</b> REQ chưa có TC</div>
+<div><span class="dot" style="background:var(--out)"></span><b>4</b> REQ ngoài phạm vi (không vẽ trên biểu đồ)</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Ma trận chi tiết REQ ↔ TC ↔ Automation</h2>
+<div class="filters" id="f1">
+<button class="on" data-f="all">Tất cả (44)</button><button data-f="full">Full (14)</button><button data-f="part">Một phần (6)</button><button data-f="man">Chỉ thủ công (20)</button><button data-f="out">Ngoài phạm vi (4)</button>
+</div>
+<div class="scroll"><table id="t1"><thead><tr><th>REQ</th><th>Mô tả</th><th>Test case</th><th>Automation</th><th>Trạng thái</th></tr></thead><tbody>
+<tr data-st="full"><td class="nw"><b>LOGIN-01</b></td><td>Truy cập trang đăng nhập</td><td class="tcs">TC_001</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="part"><td class="nw"><b>LOGIN-02</b></td><td>Thành phần biểu mẫu đăng nhập</td><td class="tcs">TC_002 · TC_038 · TC_042 · TC_043 · TC_044 · TC_048 · TC_049 · TC_050</td><td class="nw"><span class="bar"><i style="width:13%"></i></span> 1/8<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill part">Một phần</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-03</b></td><td>Tự động đặt con trỏ vào ô Email</td><td class="tcs">TC_002</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-04</b></td><td>Logo dẫn về trang chủ</td><td class="tcs">TC_004</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-05</b></td><td>Không có CAPTCHA</td><td class="tcs">TC_003</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-36</b></td><td>Không có đăng nhập mạng xã hội</td><td class="tcs">TC_003</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-37</b></td><td>Trang đăng nhập không nạp tệp JavaScript nào</td><td class="tcs">TC_003</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-page.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="part"><td class="nw"><b>LOGIN-06</b></td><td>Đăng nhập bằng thông tin hợp lệ</td><td class="tcs">TC_005 · TC_006 · TC_010 · TC_041 · TC_050</td><td class="nw"><span class="bar"><i style="width:60%"></i></span> 3/5<div class="files"><code>login.spec.ts</code></div></td><td class="nw"><span class="pill part">Một phần</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-07</b></td><td>Email không phân biệt hoa thường</td><td class="tcs">TC_007</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-38</b></td><td>Email bỏ qua khoảng trắng thừa đầu/cuối</td><td class="tcs">TC_007</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-08</b></td><td>Ghi nhớ đăng nhập sinh cookie `autologin`</td><td class="tcs">TC_008</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-09</b></td><td>Không tích Ghi nhớ thì không phát hành cookie `autologin`</td><td class="tcs">TC_009</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="part"><td class="nw"><b>LOGIN-10</b></td><td>Bỏ trống cả hai trường</td><td class="tcs">TC_011 · TC_043</td><td class="nw"><span class="bar"><i style="width:50%"></i></span> 1/2<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill part">Một phần</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-11</b></td><td>Bỏ trống riêng Email</td><td class="tcs">TC_011</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-12</b></td><td>Bỏ trống riêng Mật khẩu</td><td class="tcs">TC_011</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="part"><td class="nw"><b>LOGIN-13</b></td><td>Chặn email sai định dạng ngay tại trình duyệt</td><td class="tcs">TC_012 · TC_045 · TC_046</td><td class="nw"><span class="bar"><i style="width:33%"></i></span> 1/3<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill part">Một phần</span></td></tr>
+<tr data-st="part"><td class="nw"><b>LOGIN-14</b></td><td>Thông báo khi sai thông tin đăng nhập</td><td class="tcs">TC_013 · TC_014 · TC_017 · TC_018 · TC_040 · TC_045 · TC_047 · TC_050</td><td class="nw"><span class="bar"><i style="width:50%"></i></span> 4/8<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill part">Một phần</span></td></tr>
+<tr data-st="part"><td class="nw"><b>LOGIN-15</b></td><td>Thông báo lỗi không tiết lộ email nào có thật</td><td class="tcs">TC_013 · TC_019</td><td class="nw"><span class="bar"><i style="width:50%"></i></span> 1/2<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill part">Một phần</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-41</b></td><td>Không khoá tài khoản sau nhiều lần đăng nhập sai</td><td class="tcs">TC_015</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="full"><td class="nw"><b>LOGIN-16</b> <span title="TC sẽ FAIL vì hệ thống lỗi">🐞</span></td><td>Máy chủ phải giữ lại email đã nhập sau khi đăng nhập thất bại</td><td class="tcs">TC_016</td><td class="nw"><span class="bar"><i style="width:100%"></i></span> 1/1<div class="files"><code>login-validation.spec.ts</code></div></td><td class="nw"><span class="pill full">Full</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-17</b></td><td>Chặn URL nội bộ khi chưa đăng nhập</td><td class="tcs">TC_021</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-18</b></td><td>Không ghi nhớ URL đích sau khi chuyển hướng</td><td class="tcs">TC_022</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-19</b></td><td>Đã đăng nhập thì không vào lại trang đăng nhập</td><td class="tcs">TC_023</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-20</b></td><td>Đã đăng nhập thì không vào trang Quên mật khẩu</td><td class="tcs">TC_023</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-43</b></td><td>Tài khoản khách hàng không đăng nhập được vào khu quản trị</td><td class="tcs">TC_019 · TC_020</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/2<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-42</b></td><td>Phiên đăng nhập hết hạn sau 1 giờ</td><td class="tcs">TC_026 · TC_051</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/2<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-21</b></td><td>Biểu mẫu đăng nhập mang mã chống CSRF</td><td class="tcs">TC_024</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-22</b></td><td>Từ chối yêu cầu có mã CSRF sai</td><td class="tcs">TC_025</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-44</b> <span title="TC sẽ FAIL vì hệ thống lỗi">🐞</span></td><td>Ép truy cập qua HTTPS</td><td class="tcs">TC_039</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-23</b></td><td>Truy cập trang Quên mật khẩu</td><td class="tcs">TC_027</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-24</b></td><td>Trang Quên mật khẩu không có lối quay lại đăng nhập</td><td class="tcs">TC_027</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-25</b> <span title="TC sẽ FAIL vì hệ thống lỗi">🐞</span></td><td>Gửi biểu mẫu Quên mật khẩu khi bỏ trống email</td><td class="tcs">TC_028</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-26</b></td><td>Email không tồn tại trong hệ thống</td><td class="tcs">TC_029 · TC_030</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/2<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="out"><td class="nw"><b>LOGIN-27</b></td><td>Email tồn tại thì gửi liên kết đặt lại mật khẩu</td><td class="tcs">—</td><td class="nw">—<div class="files"></div></td><td class="nw"><span class="pill out">Ngoài phạm vi</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-28</b></td><td>Liên kết đặt lại mật khẩu sai/hết hạn</td><td class="tcs">TC_031</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-29</b></td><td>Mỗi viewport có một lối đăng xuất dùng được</td><td class="tcs">TC_032 · TC_033</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/2<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-30</b></td><td>Cảnh báo khi còn bộ đếm giờ đang chạy</td><td class="tcs">TC_034</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-31</b></td><td>Đăng xuất ngay khi không có bộ đếm giờ</td><td class="tcs">TC_035</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-32</b></td><td>Kết thúc phiên và về trang đăng nhập</td><td class="tcs">TC_036</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-33</b></td><td>URL nội bộ bị chặn lại sau khi đăng xuất</td><td class="tcs">TC_036</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="out"><td class="nw"><b>LOGIN-34</b></td><td>Cookie `autologin` không bị xoá khỏi trình duyệt khi đăng xuất</td><td class="tcs">—</td><td class="nw">—<div class="files"></div></td><td class="nw"><span class="pill out">Ngoài phạm vi</span></td></tr>
+<tr data-st="out"><td class="nw"><b>LOGIN-35</b></td><td>Cookie `autologin` đọc được bằng JavaScript</td><td class="tcs">—</td><td class="nw">—<div class="files"></div></td><td class="nw"><span class="pill out">Ngoài phạm vi</span></td></tr>
+<tr data-st="man"><td class="nw"><b>LOGIN-39</b></td><td>Cookie `autologin` không tự đăng nhập lại sau khi đăng xuất chủ động</td><td class="tcs">TC_037</td><td class="nw"><span class="bar"><i style="width:0%"></i></span> 0/1<div class="files"></div></td><td class="nw"><span class="pill man">Manual only</span></td></tr>
+<tr data-st="out"><td class="nw"><b>LOGIN-40</b></td><td>Cookie `autologin` khi phiên hết hạn tự nhiên</td><td class="tcs">—</td><td class="nw">—<div class="files"></div></td><td class="nw"><span class="pill out">Ngoài phạm vi</span></td></tr>
+</tbody></table></div>
+<p style="color:var(--mute);font-size:12.5px;margin:10px 0 0">🐞 = TC của REQ này sẽ FAIL vì hệ thống lỗi (kết quả đúng, đã/đang mở bug).</p>
+</div>
+
+<div class="card">
+<h2>TC chưa automate — 33/51</h2>
+<div class="filters" id="f2"><button class="on" data-f="all">Tất cả</button><button data-f="Critical">Critical</button><button data-f="High">High</button><button data-f="Medium">Medium</button><button data-f="Low">Low</button></div>
+<div class="scroll"><table id="t2"><thead><tr><th>TC</th><th>Ưu tiên</th><th>REQ</th><th>Khả năng automate</th><th>Ghi chú</th></tr></thead><tbody>
+<tr data-p="Critical"><td class="nw"><b>TC_021</b></td><td><span class="pr Critical">Critical</span></td><td>17</td><td>Yes</td><td>Smoke</td></tr>
+<tr data-p="Critical"><td class="nw"><b>TC_025</b></td><td><span class="pr Critical">Critical</span></td><td>22</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Critical"><td class="nw"><b>TC_032</b></td><td><span class="pr Critical">Critical</span></td><td>29</td><td>Yes</td><td>Smoke</td></tr>
+<tr data-p="Critical"><td class="nw"><b>TC_036</b></td><td><span class="pr Critical">Critical</span></td><td>32, 33</td><td>Yes</td><td>Smoke</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_019</b></td><td><span class="pr High">High</span></td><td>43, 15</td><td>Yes</td><td>—</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_020</b></td><td><span class="pr High">High</span></td><td>43</td><td>Yes</td><td>—</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_024</b></td><td><span class="pr High">High</span></td><td>21</td><td>Partial</td><td>Automate được một phần</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_026</b></td><td><span class="pr High">High</span></td><td>42</td><td>No</td><td>Không làm automation · QA tự chạy</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_027</b></td><td><span class="pr High">High</span></td><td>23, 24</td><td>Yes</td><td>—</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_028</b></td><td><span class="pr High">High</span></td><td>25</td><td>Yes</td><td>🐞 Known bug</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_029</b></td><td><span class="pr High">High</span></td><td>26</td><td>Yes</td><td>—</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_035</b></td><td><span class="pr High">High</span></td><td>31</td><td>Yes</td><td>Smoke</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_037</b></td><td><span class="pr High">High</span></td><td>39</td><td>Partial</td><td>Automate được một phần</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_039</b></td><td><span class="pr High">High</span></td><td>44</td><td>Yes</td><td>🐞 Known bug</td></tr>
+<tr data-p="High"><td class="nw"><b>TC_051</b></td><td><span class="pr High">High</span></td><td>42</td><td>No</td><td>Không làm automation · QA tự chạy</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_022</b></td><td><span class="pr Medium">Medium</span></td><td>18</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_023</b></td><td><span class="pr Medium">Medium</span></td><td>19, 20</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_030</b></td><td><span class="pr Medium">Medium</span></td><td>26</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_031</b></td><td><span class="pr Medium">Medium</span></td><td>28</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_033</b></td><td><span class="pr Medium">Medium</span></td><td>29</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_034</b></td><td><span class="pr Medium">Medium</span></td><td>30</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_038</b></td><td><span class="pr Medium">Medium</span></td><td>02</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_040</b></td><td><span class="pr Medium">Medium</span></td><td>14</td><td>Partial</td><td>Automate được một phần</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_042</b></td><td><span class="pr Medium">Medium</span></td><td>02</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_043</b></td><td><span class="pr Medium">Medium</span></td><td>02, 10</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_045</b></td><td><span class="pr Medium">Medium</span></td><td>13, 14</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_046</b></td><td><span class="pr Medium">Medium</span></td><td>13</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_047</b></td><td><span class="pr Medium">Medium</span></td><td>14</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_049</b></td><td><span class="pr Medium">Medium</span></td><td>02</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Medium"><td class="nw"><b>TC_050</b></td><td><span class="pr Medium">Medium</span></td><td>02, 06, 14</td><td>Yes</td><td>—</td></tr>
+<tr data-p="Low"><td class="nw"><b>TC_041</b></td><td><span class="pr Low">Low</span></td><td>06</td><td>Partial</td><td>Automate được một phần</td></tr>
+<tr data-p="Low"><td class="nw"><b>TC_044</b></td><td><span class="pr Low">Low</span></td><td>02</td><td>No</td><td>Không làm automation</td></tr>
+<tr data-p="Low"><td class="nw"><b>TC_048</b></td><td><span class="pr Low">Low</span></td><td>02</td><td>Yes</td><td>—</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="card">
+<h2>Lưu ý khi đọc số liệu</h2>
+<ul class="plain">
+<li>Mọi liên kết đều theo ID (cột REQ của TC, <code>testId</code> trong script) — <b>không có mapping suy luận</b>.</li>
+<li><b>TC_014</b> có script nhưng tự skip khi thiếu tài khoản test trong <code>.env</code>.</li>
+<li><b>TC_016</b> có script và cố tình FAIL (known bug); <b>TC_028</b>, <b>TC_039</b> cũng known bug nhưng chưa có script.</li>
+<li><b>TC_026, TC_051</b> do QA tự chạy (phiên 1 giờ); <b>TC_044</b> không làm automation.</li>
+<li><b>CRM_DASH_TC_001</b> là orphan: có script nhưng chưa có REQ/TC thủ công.</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>Đề xuất tiếp theo</h2>
+<ul class="plain">
+<li>Automate 4 TC Critical còn thiếu: TC_021, TC_025, TC_032, TC_036.</li>
+<li>Lập RTM cho module Khách hàng (CUST); sinh test case cho Dự án (PRJ).</li>
+<li>Khảo sát các module chưa có tài liệu, bắt đầu từ CONT.</li>
+</ul>
+</div>
+
+<footer>Nguồn: docs/requirements/login · docs/testcases/login · src/tests — lập 14-10-2026</footer>
+</main>
+<script>
+function wire(id,tid,attr){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('#'+tid+' tbody tr').forEach(r=>{r.style.display=(b.dataset.f==='all'||r.dataset[attr]===b.dataset.f)?'':'none'})})}
+wire('f1','t1','st');wire('f2','t2','p');
+</script>
+</body>
+</html>
