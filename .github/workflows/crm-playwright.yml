@@ -72,6 +72,8 @@ jobs:
       cancel-in-progress: false
     env:
       BOOK_API_BASE_URL: ${{ secrets.BOOK_API_BASE_URL }}
+      # Runner GitHub gọi server demo xa nên độ trễ cao hơn local (đo được 2.0-3.4s); local vẫn dùng 2000
+      API_SLA_MS: '5000'
     steps:
       - uses: actions/checkout@v4
 
