@@ -127,3 +127,50 @@ jobs:
           path: reports/
           retention-days: 14
           if-no-files-found: ignore
+
+  publish-report:
+    name: Publish Allure 2 lên GitHub Pages
+    needs: [ui-crm, api-book]
+    # Chạy cả khi test đỏ để vẫn xem được report; chỉ publish từ main (không phải PR)
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: allure-report-*
+
+      - name: Dựng site (ui/ · api/ · trang chủ)
+        run: |
+          mkdir -p _site/ui _site/api
+          [ -f allure-report-ui/index.html ] && cp allure-report-ui/index.html _site/ui/index.html
+          [ -f allure-report-api/index.html ] && cp allure-report-api/index.html _site/api/index.html
+          {
+            echo '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Allure 2 Reports</title></head><body>'
+            echo '<h1>Allure 2 Reports</h1>'
+            echo '<ul>'
+            [ -f _site/ui/index.html ] && echo '<li><a href="ui/">UI CRM (Perfex)</a></li>'
+            [ -f _site/api/index.html ] && echo '<li><a href="api/">API Book</a></li>'
+            echo '</ul>'
+            echo "<p>Lượt chạy: <a href=\"${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\">#${GITHUB_RUN_ID}</a> · ${GITHUB_EVENT_NAME} · commit ${GITHUB_SHA::7}</p>"
+            echo '</body></html>'
+          } > _site/index.html
+          ls -R _site
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v5
