@@ -23,7 +23,13 @@ metadata:
   - Đo bằng `--list`: UI 31 → **29**, API 50 → **46**.
   - **How to apply:** bug nào sửa xong thì bỏ phần tương ứng khỏi biến. Nếu gắn tag `@knownbug` cho TC_004 / TC_068-d trong code thì bỏ phần theo tên đi.
 - **Job API đặt `API_SLA_MS=5000`** (local vẫn 2000, mặc định của `api-env.ts`). **Why:** ngưỡng 2000 ms đo từ máy dev; runner GitHub chậm hơn. Chỉnh bằng biến môi trường, không hạ assertion. **How to apply:** thấy API đỏ vì "Thời gian phản hồi phải dưới" thì xem số đo trước — chậm do mạng thì nới `API_SLA_MS`, đừng sửa test.
-- `WORKERS=2` (runner 2 vCPU), `HEADLESS=true`, UI `retries: 2` do `process.env.CI`. Upload `reports/` thành `test-reports-ui` / `test-reports-api`, `if: always()`, 14 ngày.
+- `WORKERS=2` (runner 2 vCPU), `HEADLESS=true`, UI `retries: 2` do `process.env.CI`. Upload `reports/` thành `test-reports-ui` / `test-reports-api` (+ `allure-report-*`, xem mục Report Allure 2), `if: always()`, 14 ngày.
+
+## Report Allure 2 trên CI (14-10-2026, commit `59d40ff`, run 38541786078 xanh)
+- Mỗi job có bước `npx allure generate ... --clean --single-file` → upload artifact riêng **`allure-report-ui`** / **`allure-report-api`** (1 file `index.html`, mở thẳng bằng trình duyệt). Bước có `continue-on-error: true` để lỗi sinh report không che kết quả test. Runner `ubuntu-latest` có sẵn Java, không cần `setup-java`.
+- **Vì sao có:** sếp mở `reports/html/index.html` trong artifact `test-reports-*` rồi tưởng là Allure 3 — thực ra đó là **Playwright HTML Report**; CI trước đó **không sinh Allure** (chỉ upload `allure-results` thô).
+- **Dễ nhầm số 3:** `allure-playwright` / `allure-js-commons` `3.x` là **adapter ghi kết quả**, không phải report. CLI là `allure-commandline` **2.46.1** (Allure 2) — đúng quyết định "luôn dùng Allure 2" ([[phan-hoi-cach-lam-viec]]). Không cài gói `allure` (v3), không có `allurerc`.
+- **How to apply:** khi sếp hỏi "xem report" → chỉ artifact `allure-report-*`, nhắc `reports/html/` là Playwright. Sửa workflow phải giữ CLI 2.x. Chưa kiểm bằng mắt giao diện file tải từ GitHub (mới xác nhận bước sinh + upload thành công).
 
 ## Bẫy khi viết regex loại theo tên
 - Pattern phải **bao trọn** ngữ cảnh: `biến thể d: chuỗi 10\.000` lỡ loại luôn test **login** cùng nhãn (biến thể d password) — không hỏng nhưng bị mất khỏi CI. Dùng `không gây lỗi máy chủ \(biến thể d` mới đúng 1 test.
@@ -34,6 +40,6 @@ metadata:
 - Server demo chịu được 2 worker headless từ IP runner và không chặn IP (đã đo 14-10). Mới chạy 1–2 lượt, chưa theo dõi độ ổn định lâu dài.
 - GitHub cảnh báo Node.js 20 sắp bị loại cho `checkout`/`setup-node`/`upload-artifact` `@v4`; `ubuntu-latest` chuyển Ubuntu 26 từ 19-10-2026 — theo dõi nếu workflow bỗng lỗi.
 - Artifact `reports/` chứa trace `retain-on-failure` có giá trị đã điền (email admin) — repo công khai thì cân nhắc ([[viec-dang-do]]).
-- Allure không sinh trên CI (chỉ upload `allure-results`); xem local bằng `npm run report` (cần JRE 8+).
+- Allure xem local bằng `npm run report` (cần JRE 8+).
 
 Liên quan: [[tach-repo]] · [[viec-dang-do]] · [[framework-playwright-ui]]

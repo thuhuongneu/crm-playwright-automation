@@ -174,7 +174,16 @@ Suite API **đăng ký rồi xoá tài khoản** trên server demo dùng chung n
 
 **TC cố tình FAIL bị loại khỏi CI** (app đang có bug, không hạ assertion để né): biến `EXCLUDE_KNOWN_BUGS` ở đầu file workflow loại theo tag `@knownbug` · `@pendingamb` và theo tên 2 TC chưa gắn tag — `CRM_LOGIN_TC_004` (bấm logo) và `BK_AUTH_TC_068-d` (name 10.000 ký tự). Khi bug được sửa thì bỏ phần tương ứng khỏi biến đó. Chạy tay cho khớp CI: `npx playwright test --grep-invert "<giá trị biến>"`.
 
-Cấu hình CI: headless, `WORKERS=2` (runner 2 vCPU), suite UI tự `retries: 2` khi có `CI`. Toàn bộ `reports/` được upload thành artifact `test-reports-ui` / `test-reports-api` (giữ 14 ngày), kể cả khi test fail.
+Cấu hình CI: headless, `WORKERS=2` (runner 2 vCPU), suite UI tự `retries: 2` khi có `CI`. Job API đặt `API_SLA_MS=5000` (runner gọi server demo chậm hơn máy dev; local vẫn 2000).
+
+**Xem report trên CI** — mỗi lượt chạy có 4 artifact (giữ 14 ngày, kể cả khi test fail):
+
+| Artifact | Nội dung | Dùng khi |
+|---|---|---|
+| `allure-report-ui` · `allure-report-api` | **Allure 2**, 1 file `index.html` (sinh bằng `allure-commandline` của project) | **Xem report** — giải nén, mở bằng trình duyệt, không cần Java hay server |
+| `test-reports-ui` · `test-reports-api` | Toàn bộ `reports/`: `allure-results` thô, Playwright HTML (`html/`), trace/video khi fail | Debug sâu; tự sinh lại Allure bằng `npm run report` |
+
+> `reports/html/` là **Playwright HTML Report**, không phải Allure — giao diện khác hẳn. Muốn xem Allure thì mở artifact `allure-report-*`.
 
 ## 9. Giới hạn đã biết
 
