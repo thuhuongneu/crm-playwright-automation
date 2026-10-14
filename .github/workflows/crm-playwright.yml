@@ -178,10 +178,8 @@ jobs:
   notify-chat:
     name: Gửi kết quả vào Google Chat (space Note)
     needs: [ui-crm, api-book, publish-report]
-    # Chỉ báo khi chạy theo lịch, hoặc khi có job không xanh — tránh Note bị đầy vì mỗi lần push
-    if: >-
-      always() && github.event_name != 'pull_request' &&
-      (github.event_name == 'schedule' || needs.ui-crm.result != 'success' || needs.api-book.result != 'success')
+    # Báo sau MỌI lượt chạy có kết quả (pass hay fail), trừ PR (job test không chạy ở PR từ fork, không có secret)
+    if: always() && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
