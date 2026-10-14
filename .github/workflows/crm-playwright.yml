@@ -52,6 +52,21 @@ jobs:
       - name: Chạy test UI
         run: npx playwright test --grep-invert "$EXCLUDE_KNOWN_BUGS"
 
+      # Allure 2 (CLI allure-commandline trong project, cần Java — runner ubuntu-latest có sẵn). Lỗi sinh report không được che kết quả test
+      - name: Sinh report Allure 2
+        if: always()
+        continue-on-error: true
+        run: npx allure generate reports/allure-results -o reports/allure-report-single --clean --single-file
+
+      - name: Upload Allure 2 (1 file HTML, mở thẳng bằng trình duyệt)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-ui
+          path: reports/allure-report-single/
+          retention-days: 14
+          if-no-files-found: ignore
+
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
@@ -86,6 +101,20 @@ jobs:
 
       - name: Chạy test API
         run: npx playwright test -c playwright.api.config.ts --grep-invert "$EXCLUDE_KNOWN_BUGS"
+
+      - name: Sinh report Allure 2
+        if: always()
+        continue-on-error: true
+        run: npx allure generate reports/api/allure-results -o reports/api/allure-report-single --clean --single-file
+
+      - name: Upload Allure 2 (1 file HTML, mở thẳng bằng trình duyệt)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-api
+          path: reports/api/allure-report-single/
+          retention-days: 14
+          if-no-files-found: ignore
 
       - name: Upload report
         if: always()
