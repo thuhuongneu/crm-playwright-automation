@@ -10,7 +10,8 @@ metadata:
 > Xong việc nào → **xoá dòng** đó và ghi kết quả vào file chủ đề tương ứng.
 
 ## Sau khi tách repo / framework
-- [ ] CI đã dựng (14-10) nhưng **chưa chạy thật**: `git init` + remote, khai 6 secrets, chạy `workflow_dispatch` lần đầu rồi đọc kết quả → [[ci-github-actions]]
+- [ ] Rà `~/.claude/settings.json`: 4 rule `git` đã chuyển `deny` → `ask` (14-10) nhưng lệnh `git add/commit/push` vẫn chạy không hỏi → kiểm tra file đã lưu / phiên đã nạp lại chưa · *chờ sếp*
+- [ ] Sếp cân nhắc **xoay PAT/webhook** trong `~/.claude/settings.json` (lỡ in ra transcript 14-10) — memory không ghi giá trị
 - [ ] Đồng bộ viewport: `.mcp.json` `1600,780` ↔ `CLAUDE.md` / `playwright_rules.md` `1600×770` → [[ly-do-thiet-ke]] · *chờ sếp*
 - [ ] (Đề xuất) bổ sung dòng "không tự commit" vào `CLAUDE.md` → [[phan-hoi-cach-lam-viec]] · *chờ sếp*
 
