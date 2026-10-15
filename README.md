@@ -154,14 +154,33 @@ crm-playwright-automation/
 
 ## 8. CI/CD
 
-Workflow: **`.github/workflows/crm-playwright.yml`** (gốc repo). Có 2 job độc lập:
+Workflow: **`.github/workflows/crm-playwright.yml`** (gốc repo). Có 4 job:
 
 | Job | Chạy khi | Nội dung |
 |---|---|---|
-| `ui-crm` | `push` vào `main` · `pull_request` (trừ PR từ fork) · `workflow_dispatch` | `npm ci` → `typecheck` → cài Chromium → chạy suite UI CRM |
-| `api-book` | `push` vào `main` · `workflow_dispatch` (**không** chạy ở PR) | `npm ci` → chạy suite API Book |
+| `ui-crm` | `push` vào `main` · `pull_request` (trừ PR từ fork) · `workflow_dispatch` · `schedule` | `npm ci` → `typecheck` → cài Chromium → chạy suite UI CRM |
+| `api-book` | `push` vào `main` · `workflow_dispatch` · `schedule` (**không** chạy ở PR) | `npm ci` → chạy suite API Book |
+| `publish-report` | sau 2 job trên, từ `main` (không PR), kể cả khi test đỏ | Đưa report Allure 2 lên **GitHub Pages** |
+| `notify-chat` | sau mọi lượt chạy (trừ PR), pass hay fail | Gửi thẻ kết quả vào space **Note** trên Google Chat |
 
 Suite API **đăng ký rồi xoá tài khoản** trên server demo dùng chung nên không chạy ở PR, và hai lượt chạy không được chồng nhau (`concurrency: api-book`).
+
+### Lịch chạy tự động hằng ngày
+
+Workflow khai `schedule: cron '3 1 * * *'` (01:03 UTC = **08:03 giờ Việt Nam**), **nhưng bộ lập lịch của GitHub không phát sự kiện cho repo này** — đã đo 15-10-2026: cron 5 phút một lần chạy 20 phút ra 0 lượt, trong khi chạy tay cùng workflow thì xanh. Cấu hình repo đều đúng; nguyên nhân phía GitHub (chưa xác định, chỉ GitHub Support trả lời được).
+
+**Cách đang dùng thay thế:** dịch vụ **cron-job.org** gọi API GitHub bấm "Run workflow" (`workflow_dispatch`) mỗi ngày — máy không cần mở.
+
+| Mục | Giá trị |
+|---|---|
+| URL | `POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/crm-playwright.yml/dispatches` |
+| Body | `{"ref":"main"}` |
+| Header | `Authorization: Bearer <token>` · `Accept: application/vnd.github+json` · `X-GitHub-Api-Version: 2022-11-28` · `Content-Type: application/json` |
+| Token | Fine-grained PAT, **chỉ repo này**, quyền **Actions: Read and write**. Hết hạn **13-01-2027** → tạo mới, sửa header trên cron-job.org |
+| Múi giờ job | `Asia/Ho_Chi_Minh` |
+| Kết quả đúng | HTTP **204**; thẻ Google Chat ghi "Kích hoạt: bấm tay" (vì GitHub coi đây là `workflow_dispatch`) |
+
+Lượt chạy thử lúc 11:00 ngày 15-10-2026 do cron-job.org tự kích hoạt (trễ ~19 giây) chạy xanh cả 4 job. Cron của GitHub giữ nguyên làm dự phòng — khi GitHub sửa được thì mỗi sáng có thể có 2 lượt, lúc đó tắt job cron-job.org. Token **không** ghi vào repo hay tài liệu.
 
 **GitHub Secrets cần khai** (Settings → Secrets and variables → Actions):
 
@@ -169,6 +188,7 @@ Suite API **đăng ký rồi xoá tài khoản** trên server demo dùng chung n
 |---|---|
 | `BASE_URL` · `TEST_USERNAME` · `TEST_PASSWORD` · `PM_EMAIL` · `PM_PASSWORD` | Job `ui-crm` — thiếu **một** biến là cả suite crash |
 | `BOOK_API_BASE_URL` | Job `api-book` |
+| `GCHAT_WEBHOOK_NOTE` | Job `notify-chat` (webhook Google Chat) |
 
 `TC014_EMAIL` / `TC014_PASSWORD` là tuỳ chọn — không khai thì `CRM_LOGIN_TC_014` tự skip.
 
@@ -184,6 +204,15 @@ Cấu hình CI: headless, `WORKERS=2` (runner 2 vCPU), suite UI tự `retries: 2
 | `test-reports-ui` · `test-reports-api` | Toàn bộ `reports/`: `allure-results` thô, Playwright HTML (`html/`), trace/video khi fail | Debug sâu; tự sinh lại Allure bằng `npm run report` |
 
 > `reports/html/` là **Playwright HTML Report**, không phải Allure — giao diện khác hẳn. Muốn xem Allure thì mở artifact `allure-report-*`.
+
+**Xem Allure 2 trực tiếp trên web (GitHub Pages)** — job `publish-report` đưa report **lượt chạy mới nhất** lên:
+
+- Trang chủ: `https://<owner>.github.io/<repo>/` (ghi số lượt chạy, sự kiện, commit)
+- UI CRM: `.../ui/` · API Book: `.../api/`
+
+Mỗi lượt chạy trên `main` **ghi đè** report cũ. Trình duyệt cache khoảng 10 phút (`Cache-Control: max-age=600`) → thấy báo cáo cũ thì **Ctrl+Shift+R**. Repo public nên ai có link cũng xem được; report chứa tên test và ảnh chụp màn hình của hệ thống demo.
+
+**Thông báo Google Chat** — job `notify-chat` chạy `.github/scripts/notify-chat.js` gửi một thẻ (số passed/failed/broken/skipped, tách UI/API, thời gian chạy, kích hoạt/nhánh/commit/người chạy, nút Allure UI · Allure API · Log lượt chạy). Số test do `.github/scripts/summarize-allure.js` đếm từ `allure-results` (test retry chỉ tính lần cuối). Cần secret **`GCHAT_WEBHOOK_NOTE`** (webhook của space; coi như mật khẩu, không dán vào chat). Xem thử không gửi: `DRY_RUN=1 node .github/scripts/notify-chat.js`.
 
 ## 9. Giới hạn đã biết
 

@@ -10,6 +10,7 @@ metadata:
 > Xong việc nào → **xoá dòng** đó và ghi kết quả vào file chủ đề tương ứng.
 
 ## Sau khi tách repo / framework
+- [ ] Lịch CI: **sáng 16-10 kiểm lượt `workflow_dispatch` ~08:00** do cron-job.org (sếp phải đổi job từ 11:00 về 08:00 + Title) · **gửi ticket GitHub Support** vì `schedule:` không chạy (chưa soạn) · **tạo token mới trước 13-01-2027** → [[ci-github-actions]]
 - [ ] Rà `~/.claude/settings.json`: 4 rule `git` đã chuyển `deny` → `ask` (14-10) nhưng lệnh `git add/commit/push` vẫn chạy không hỏi → kiểm tra file đã lưu / phiên đã nạp lại chưa · *chờ sếp*
 - [ ] Sếp cân nhắc **xoay PAT/webhook** trong `~/.claude/settings.json` (lỡ in ra transcript 14-10) — memory không ghi giá trị
 - [ ] Đồng bộ viewport: `.mcp.json` `1600,780` ↔ `CLAUDE.md` / `playwright_rules.md` `1600×770` → [[ly-do-thiet-ke]] · *chờ sếp*

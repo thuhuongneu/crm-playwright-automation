@@ -36,7 +36,7 @@
 - [he-thong-perfex-crm.md](02-crm-ui/he-thong-perfex-crm.md) — kết quả recon: route, 3 vai trò, DOM form login, hành vi lỗi, bug đã biết, môi trường dùng chung
 - [framework-playwright-ui.md](02-crm-ui/framework-playwright-ui.md) — quyết định thiết kế `playwright.config.ts`, fixture, env, tag, Allure, typecheck
 - [test-login-dashboard.md](02-crm-ui/test-login-dashboard.md) — TC đã automate, map TC ID ↔ file, kết quả chạy gần nhất, TC cố tình FAIL
-- [ci-github-actions.md](02-crm-ui/ci-github-actions.md) — CI đã dựng lại 14-10: 2 job, secrets, loại TC cố tình FAIL, điều chưa kiểm
+- [ci-github-actions.md](02-crm-ui/ci-github-actions.md) — CI: 4 job, secrets, loại TC cố tình FAIL, Allure 2 + Pages + Google Chat, lịch GitHub không chạy → cron-job.org
 
 ### `03-book-api/` — AnhTester Book (`https://book.anhtester.com`) · code ở `api/`
 - [he-thong-va-phat-hien.md](03-book-api/he-thong-va-phat-hien.md) — spec + sha, hành vi auth thật, các phát hiện F-xx, sự cố xoá tài khoản seed 14-08

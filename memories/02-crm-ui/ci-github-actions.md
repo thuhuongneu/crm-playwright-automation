@@ -1,6 +1,6 @@
 ---
 name: ci-github-actions
-description: CI GitHub Actions của repo — workflow đã dựng lại 14-10-2026, quyết định loại TC cố tình FAIL, secrets, điều chưa kiểm
+description: CI GitHub Actions của repo — workflow, loại TC cố tình FAIL, secrets, Allure 2 + Pages + Google Chat, lịch GitHub không chạy và giải pháp cron-job.org
 metadata:
   type: project
 ---
@@ -30,6 +30,21 @@ metadata:
 - **Vì sao có:** sếp mở `reports/html/index.html` trong artifact `test-reports-*` rồi tưởng là Allure 3 — thực ra đó là **Playwright HTML Report**; CI trước đó **không sinh Allure** (chỉ upload `allure-results` thô).
 - **Dễ nhầm số 3:** `allure-playwright` / `allure-js-commons` `3.x` là **adapter ghi kết quả**, không phải report. CLI là `allure-commandline` **2.46.1** (Allure 2) — đúng quyết định "luôn dùng Allure 2" ([[phan-hoi-cach-lam-viec]]). Không cài gói `allure` (v3), không có `allurerc`.
 - **How to apply:** khi sếp hỏi "xem report" → chỉ artifact `allure-report-*`, nhắc `reports/html/` là Playwright. Sửa workflow phải giữ CLI 2.x. Chưa kiểm bằng mắt giao diện file tải từ GitHub (mới xác nhận bước sinh + upload thành công).
+
+## Pages + Google Chat (14-10-2026)
+- **GitHub Pages** (đã bật bằng `gh api -X POST repos/<repo>/pages -f build_type=workflow`): job `publish-report` đưa Allure 2 lên `https://thuhuongneu.github.io/crm-playwright-automation/` (`/ui/`, `/api/`), chỉ từ `main`, ghi đè mỗi lượt. Pages gắn `Cache-Control: max-age=600` → sếp thấy report cũ thì **Ctrl+Shift+R**; nhìn trang chủ để biết report thuộc lượt nào. Repo public → report ai cũng xem được.
+- **Thẻ Google Chat** space **Note**: job `notify-chat` chạy `.github/scripts/notify-chat.js` (Cards v2, có hai cột, nút Allure UI/API + Log lượt chạy); số test do `.github/scripts/summarize-allure.js` đếm (dedupe retry theo `historyId`). Gửi sau **mọi** lượt (pass/fail, trừ PR) — sếp chốt 14-10 (mặc định ban đầu tôi đề xuất chỉ gửi khi lịch/đỏ, sếp đổi). Secret `GCHAT_WEBHOOK_NOTE`, nạp từ `.env` bằng `gh secret set`. Giao diện chỉnh theo ảnh mẫu Slack của sếp; Google Chat không cho nền/cột y hệt.
+- Webhook QC trong `~/.claude/settings.json` (`OPS_WEBHOOK_GCHAT_QC`) **không dùng** — gửi vào space khác.
+
+## Lịch `schedule:` của GitHub KHÔNG chạy — đã điều tra (15-10-2026)
+- **Triệu chứng:** cron đã đặt 16:35 · 16:50 · 17:40 (14-10) và `3 1 * * *` = 08:03 (15-10) → **0 lượt `schedule`** (`gh run list --event schedule` rỗng).
+- **Đã loại trừ (đo được):** file có trên `main` (nhánh mặc định) · workflow `active` · Actions bật · repo không fork/archive/disable · commit sửa cron gắn đúng tài khoản · GitHub status không có sự cố lịch · tài khoản lập từ 2019.
+- **Thí nghiệm quyết định:** workflow probe riêng cron `*/5 * * * *` chạy 09:54→10:14 → **0 lượt**; cùng workflow chạy tay (`workflow_dispatch`) → xanh ngay. ⇒ GitHub **không phát sự kiện schedule cho repo này**; không phải lỗi workflow/giờ đặt. Nguyên nhân cụ thể **chưa xác định**, API không lộ, chỉ GitHub Support trả lời được. Probe đã xoá.
+- **Why ghi:** đừng đổi cron lặp lại nữa (đã đổi 4 lần, vô ích) và đừng đoán nguyên nhân.
+- **Giải pháp đang chạy — cron-job.org** (sếp tự tạo tài khoản + token): gọi `POST /repos/thuhuongneu/crm-playwright-automation/actions/workflows/crm-playwright.yml/dispatches` body `{"ref":"main"}` mỗi ngày, múi giờ `Asia/Ho_Chi_Minh`. Máy sếp **không cần mở**. Thử 15-10 lúc 11:00: tự chạy, trễ ~19 giây, cả 4 job xanh. Thẻ Chat ghi "Kích hoạt: bấm tay" (vì là `workflow_dispatch`).
+- **Token:** fine-grained PAT **chỉ repo này**, quyền **Actions: Read and write**, **hết hạn 13-01-2027** → tạo mới + sửa header `Authorization` trên cron-job.org. Giá trị token KHÔNG ghi ở đâu trong repo.
+- **How to apply:** sáng hôm sau muốn biết lịch có chạy → `gh run list --repo thuhuongneu/crm-playwright-automation --limit 3` (tìm `workflow_dispatch` ~08:00). Cron GitHub `3 1 * * *` giữ làm dự phòng; khi GitHub sửa được → mỗi sáng 2 lượt → tắt job cron-job.org.
+- **Liên quan Bài 17 (khoá học):** bài phân vai — `schedule:` của GitHub **chạy suite**, task theo lịch của Claude chỉ **đọc kết quả/phân tích**, KHÔNG chạy suite thay CI. Nên không dùng task Claude để thay lịch chạy test; hết Bài 17 thì dùng chỗ hẹn giờ AI cho phần phân tích.
 
 ## Bẫy khi viết regex loại theo tên
 - Pattern phải **bao trọn** ngữ cảnh: `biến thể d: chuỗi 10\.000` lỡ loại luôn test **login** cùng nhãn (biến thể d password) — không hỏng nhưng bị mất khỏi CI. Dùng `không gây lỗi máy chủ \(biến thể d` mới đúng 1 test.
