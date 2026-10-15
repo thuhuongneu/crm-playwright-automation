@@ -1,0 +1,15 @@
+name: Schedule probe (TẠM — điều tra lịch không chạy)
+
+# Workflow thử: chỉ kiểm tra GitHub có phát sự kiện schedule cho repo này không.
+# Không chạy test, không gọi server demo, không gửi Google Chat. Điều tra xong thì XOÁ file này.
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo "probe chạy lúc $(TZ=Asia/Ho_Chi_Minh date '+%H:%M:%S %d-%m-%Y') · sự kiện ${GITHUB_EVENT_NAME}"
