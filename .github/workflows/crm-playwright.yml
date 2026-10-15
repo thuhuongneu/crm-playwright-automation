@@ -4,11 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Lịch hằng ngày KHÔNG dùng `schedule:` của GitHub (đo được trễ ~4h43m, 15-10-2026) —
+  # cron-job.org gọi API bấm workflow_dispatch lúc 08:00 giờ Việt Nam. Xem README §8.
   workflow_dispatch:
-  schedule:
-    # GitHub cron luôn tính theo UTC: 01:03 UTC = 08:03 giờ Việt Nam (UTC+7), mỗi ngày.
-    # Lệch 3 phút khỏi 08:00 vì đầu giờ tròn là lúc hàng đợi lịch của GitHub nghẽn nhất (hay trễ / bị bỏ lượt)
-    - cron: '3 1 * * *'
 
 env:
   NODE_VERSION: '22'

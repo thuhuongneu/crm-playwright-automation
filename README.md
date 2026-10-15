@@ -158,8 +158,8 @@ Workflow: **`.github/workflows/crm-playwright.yml`** (gốc repo). Có 4 job:
 
 | Job | Chạy khi | Nội dung |
 |---|---|---|
-| `ui-crm` | `push` vào `main` · `pull_request` (trừ PR từ fork) · `workflow_dispatch` · `schedule` | `npm ci` → `typecheck` → cài Chromium → chạy suite UI CRM |
-| `api-book` | `push` vào `main` · `workflow_dispatch` · `schedule` (**không** chạy ở PR) | `npm ci` → chạy suite API Book |
+| `ui-crm` | `push` vào `main` · `pull_request` (trừ PR từ fork) · `workflow_dispatch` (gồm cả lượt do cron-job.org gọi) | `npm ci` → `typecheck` → cài Chromium → chạy suite UI CRM |
+| `api-book` | `push` vào `main` · `workflow_dispatch` (**không** chạy ở PR) | `npm ci` → chạy suite API Book |
 | `publish-report` | sau 2 job trên, từ `main` (không PR), kể cả khi test đỏ | Đưa report Allure 2 lên **GitHub Pages** |
 | `notify-chat` | sau mọi lượt chạy (trừ PR), pass hay fail | Gửi thẻ kết quả vào space **Note** trên Google Chat |
 
@@ -167,9 +167,9 @@ Suite API **đăng ký rồi xoá tài khoản** trên server demo dùng chung n
 
 ### Lịch chạy tự động hằng ngày
 
-Workflow khai `schedule: cron '3 1 * * *'` (01:03 UTC = **08:03 giờ Việt Nam**), **nhưng bộ lập lịch của GitHub không phát sự kiện cho repo này** — đã đo 15-10-2026: cron 5 phút một lần chạy 20 phút ra 0 lượt, trong khi chạy tay cùng workflow thì xanh. Cấu hình repo đều đúng; nguyên nhân phía GitHub (chưa xác định, chỉ GitHub Support trả lời được).
+Workflow **không dùng `schedule:` của GitHub**. Lịch `schedule:` của GitHub **có chạy nhưng trễ rất nhiều và không đoán được**: cron đặt 08:03 giờ Việt Nam mà lượt thật chạy lúc **12:46** (trễ khoảng 4 giờ 43 phút, đo 15-10-2026); các mốc đặt lúc 16:35 · 16:50 · 17:40 hôm trước không thấy lượt nào trong thời gian ngắn chờ. GitHub cũng ghi trong tài liệu rằng lịch có thể trễ hoặc bị bỏ khi hệ thống tải cao. Muốn chạy **đúng giờ** thì phải dùng bộ hẹn giờ bên ngoài.
 
-**Cách đang dùng thay thế:** dịch vụ **cron-job.org** gọi API GitHub bấm "Run workflow" (`workflow_dispatch`) mỗi ngày — máy không cần mở.
+**Cách đang dùng:** dịch vụ **cron-job.org** gọi API GitHub bấm "Run workflow" (`workflow_dispatch`) lúc **08:00 giờ Việt Nam** mỗi ngày — máy không cần mở.
 
 | Mục | Giá trị |
 |---|---|
@@ -180,7 +180,7 @@ Workflow khai `schedule: cron '3 1 * * *'` (01:03 UTC = **08:03 giờ Việt Nam
 | Múi giờ job | `Asia/Ho_Chi_Minh` |
 | Kết quả đúng | HTTP **204**; thẻ Google Chat ghi "Kích hoạt: bấm tay" (vì GitHub coi đây là `workflow_dispatch`) |
 
-Lượt chạy thử lúc 11:00 ngày 15-10-2026 do cron-job.org tự kích hoạt (trễ ~19 giây) chạy xanh cả 4 job. Cron của GitHub giữ nguyên làm dự phòng — khi GitHub sửa được thì mỗi sáng có thể có 2 lượt, lúc đó tắt job cron-job.org. Token **không** ghi vào repo hay tài liệu.
+Lượt chạy thử lúc 11:00 ngày 15-10-2026 do cron-job.org tự kích hoạt (trễ ~19 giây) chạy xanh cả 4 job. Muốn đổi giờ chạy: sửa job trên cron-job.org (không sửa workflow). Token **không** ghi vào repo hay tài liệu.
 
 **GitHub Secrets cần khai** (Settings → Secrets and variables → Actions):
 

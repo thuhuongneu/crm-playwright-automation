@@ -1,6 +1,6 @@
 ---
 name: ci-github-actions
-description: CI GitHub Actions của repo — workflow, loại TC cố tình FAIL, secrets, Allure 2 + Pages + Google Chat, lịch GitHub không chạy và giải pháp cron-job.org
+description: CI GitHub Actions của repo — workflow, loại TC cố tình FAIL, secrets, Allure 2 + Pages + Google Chat, lịch GitHub trễ nặng → bỏ, dùng cron-job.org
 metadata:
   type: project
 ---
@@ -36,15 +36,15 @@ metadata:
 - **Thẻ Google Chat** space **Note**: job `notify-chat` chạy `.github/scripts/notify-chat.js` (Cards v2, có hai cột, nút Allure UI/API + Log lượt chạy); số test do `.github/scripts/summarize-allure.js` đếm (dedupe retry theo `historyId`). Gửi sau **mọi** lượt (pass/fail, trừ PR) — sếp chốt 14-10 (mặc định ban đầu tôi đề xuất chỉ gửi khi lịch/đỏ, sếp đổi). Secret `GCHAT_WEBHOOK_NOTE`, nạp từ `.env` bằng `gh secret set`. Giao diện chỉnh theo ảnh mẫu Slack của sếp; Google Chat không cho nền/cột y hệt.
 - Webhook QC trong `~/.claude/settings.json` (`OPS_WEBHOOK_GCHAT_QC`) **không dùng** — gửi vào space khác.
 
-## Lịch `schedule:` của GitHub KHÔNG chạy — đã điều tra (15-10-2026)
-- **Triệu chứng:** cron đã đặt 16:35 · 16:50 · 17:40 (14-10) và `3 1 * * *` = 08:03 (15-10) → **0 lượt `schedule`** (`gh run list --event schedule` rỗng).
-- **Đã loại trừ (đo được):** file có trên `main` (nhánh mặc định) · workflow `active` · Actions bật · repo không fork/archive/disable · commit sửa cron gắn đúng tài khoản · GitHub status không có sự cố lịch · tài khoản lập từ 2019.
-- **Thí nghiệm quyết định:** workflow probe riêng cron `*/5 * * * *` chạy 09:54→10:14 → **0 lượt**; cùng workflow chạy tay (`workflow_dispatch`) → xanh ngay. ⇒ GitHub **không phát sự kiện schedule cho repo này**; không phải lỗi workflow/giờ đặt. Nguyên nhân cụ thể **chưa xác định**, API không lộ, chỉ GitHub Support trả lời được. Probe đã xoá.
-- **Why ghi:** đừng đổi cron lặp lại nữa (đã đổi 4 lần, vô ích) và đừng đoán nguyên nhân.
-- **Giải pháp đang chạy — cron-job.org** (sếp tự tạo tài khoản + token): gọi `POST /repos/thuhuongneu/crm-playwright-automation/actions/workflows/crm-playwright.yml/dispatches` body `{"ref":"main"}` mỗi ngày, múi giờ `Asia/Ho_Chi_Minh`. Máy sếp **không cần mở**. Thử 15-10 lúc 11:00: tự chạy, trễ ~19 giây, cả 4 job xanh. Thẻ Chat ghi "Kích hoạt: bấm tay" (vì là `workflow_dispatch`).
+## Lịch hằng ngày: bỏ `schedule:` của GitHub, dùng cron-job.org (15-10-2026)
+- **Quyết định (sếp chốt 15-10):** **xoá `schedule:`** khỏi workflow; chạy hằng ngày bằng **cron-job.org** gọi `workflow_dispatch`. **Why:** lịch GitHub trễ nặng và khó đoán, sếp cần kết quả đúng 8h sáng.
+- **Đo được:** cron `3 1 * * *` (08:03 giờ VN) chạy thật lúc **12:46 VN** = trễ ~**4h43m** (run 38688618302, sự kiện `schedule`, 4 job xanh, thẻ Chat đã gửi). Các mốc 16:35 · 16:50 · 17:40 (14-10) không thấy lượt nào trong khoảng chờ ngắn (≤ ~30 phút).
+- **⚠️ Kết luận cũ của tôi SAI (đã sửa):** tôi từng ghi "GitHub không phát sự kiện schedule cho repo này / lỗi phía GitHub, cần Support". Thực tế là **trễ rất lâu, không phải không chạy**. Probe cron 5 phút chỉ chờ 20 phút nên không thấy lượt nào — **chờ quá ngắn mới kết luận sai**. Bài học: với `schedule:` của GitHub phải chờ **hàng giờ** (và qua nhiều mốc) trước khi kết luận; GitHub tài liệu hoá lịch có thể trễ/bị bỏ khi tải cao, nhất là đầu giờ tròn. Cũng vì đổi cron liên tục 4 lần trong 16 tiếng nên đã không phân biệt được lượt nào trễ lượt nào bị bỏ.
+- **Đã loại trừ (cấu hình đúng):** file trên `main` · workflow `active` · Actions bật · không fork/archive/disable · commit gắn đúng tài khoản · GitHub status không có sự cố.
+- **cron-job.org** (sếp tự tạo tài khoản + token): `POST /repos/thuhuongneu/crm-playwright-automation/actions/workflows/crm-playwright.yml/dispatches`, body `{"ref":"main"}`, job "CRM Playwright 8h sáng" = `0 8 * * *` múi giờ `Asia/Ho_Chi_Minh`. Máy sếp **không cần mở**. Thử 15-10 lúc 11:00: tự chạy, trễ ~19 giây, 4 job xanh. Thẻ Chat ghi "Kích hoạt: bấm tay" vì là `workflow_dispatch`.
 - **Token:** fine-grained PAT **chỉ repo này**, quyền **Actions: Read and write**, **hết hạn 13-01-2027** → tạo mới + sửa header `Authorization` trên cron-job.org. Giá trị token KHÔNG ghi ở đâu trong repo.
-- **How to apply:** sáng hôm sau muốn biết lịch có chạy → `gh run list --repo thuhuongneu/crm-playwright-automation --limit 3` (tìm `workflow_dispatch` ~08:00). Cron GitHub `3 1 * * *` giữ làm dự phòng; khi GitHub sửa được → mỗi sáng 2 lượt → tắt job cron-job.org.
-- **Liên quan Bài 17 (khoá học):** bài phân vai — `schedule:` của GitHub **chạy suite**, task theo lịch của Claude chỉ **đọc kết quả/phân tích**, KHÔNG chạy suite thay CI. Nên không dùng task Claude để thay lịch chạy test; hết Bài 17 thì dùng chỗ hẹn giờ AI cho phần phân tích.
+- **How to apply:** kiểm lịch → `gh run list --repo thuhuongneu/crm-playwright-automation --limit 3` (tìm `workflow_dispatch` ~08:00). Đổi giờ chạy → sửa trên cron-job.org, KHÔNG thêm lại `schedule:`. Không cần ticket GitHub Support. Muốn lịch trong workflow quay lại thì chấp nhận trễ nhiều giờ.
+- **Liên quan Bài 17 (khoá học):** bài phân vai — `schedule:` của GitHub **chạy suite**, task theo lịch của Claude chỉ **đọc kết quả/phân tích**, KHÔNG chạy suite thay CI. Nên không dùng task Claude để chạy test; hết Bài 17 thì dùng chỗ hẹn giờ AI cho phần phân tích. (Bài 17 giả định `schedule:` GitHub chạy — repo này lệch giả định đó vì trễ.)
 
 ## Bẫy khi viết regex loại theo tên
 - Pattern phải **bao trọn** ngữ cảnh: `biến thể d: chuỗi 10\.000` lỡ loại luôn test **login** cùng nhãn (biến thể d password) — không hỏng nhưng bị mất khỏi CI. Dùng `không gây lỗi máy chủ \(biến thể d` mới đúng 1 test.
